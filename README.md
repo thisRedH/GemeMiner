@@ -11,6 +11,7 @@ on the typical Storefronts like [Steam], [Epic Games], [GoG] etc.
   - [Steam]
   - [Epic Games]
   - [GOG] (TODO)
+  - [Itch.io]
 - Get Game Data from
   - [IGDB] (TODO)
 
@@ -21,3 +22,4 @@ This software is licensed under the [Apache-2.0](LICENSE) License.
 [Steam]: https://store.steampowered.com/
 [Epic Games]: https://store.epicgames.com/
 [GoG]: https://www.gog.com/
+[Itch.io]: https://itch.io/
