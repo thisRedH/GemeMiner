@@ -23,26 +23,22 @@ def format_dict(
     pretty_indent: str = " " * 4,
     consoleFormatFn: callable = None,
 ) -> str:
-    match format:
-        case FormatTypeEnum.JSON:
-            return _format_json(data)
-        case FormatTypeEnum.JSON_PRETTY:
-            return _format_json_pretty(data)
-
-        case FormatTypeEnum.XML:
-            return _format_xml(data, cdata=False)
-        case FormatTypeEnum.XML_CDATA:
-            return _format_xml(data, cdata=True)
-        case FormatTypeEnum.XML_PRETTY:
-            return _format_xml_pretty(data, cdata=False, indent=pretty_indent)
-        case FormatTypeEnum.XML_PRETTY_CDATA:
-            return _format_xml_pretty(data, cdata=True, indent=pretty_indent)
-
-        case FormatTypeEnum.CONSOLE:
-            return _format_console(data, consoleFormatFn)
-
-    raise ValueError(f"Unknown format: {repr(format)}")
-
+    if format == FormatTypeEnum.JSON:
+        return _format_json(data)
+    elif format == FormatTypeEnum.JSON_PRETTY:
+        return _format_json_pretty(data)
+    elif format == FormatTypeEnum.XML:
+        return _format_xml(data, cdata=False)
+    elif format == FormatTypeEnum.XML_CDATA:
+        return _format_xml(data, cdata=True)
+    elif format == FormatTypeEnum.XML_PRETTY:
+        return _format_xml_pretty(data, cdata=False, indent=pretty_indent)
+    elif format == FormatTypeEnum.XML_PRETTY_CDATA:
+        return _format_xml_pretty(data, cdata=True, indent=pretty_indent)
+    elif format == FormatTypeEnum.CONSOLE:
+        return _format_console(data, consoleFormatFn)
+    else:
+        raise ValueError(f"Unknown format: {repr(format)}")
 
 def _format_json(data: dict) -> str:
     return json.dumps(data)
