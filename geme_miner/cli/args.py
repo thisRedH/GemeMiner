@@ -1,9 +1,9 @@
 import os.path
 import platform
-import argparse
+from argparse import ArgumentParser, ArgumentTypeError, SUPPRESS
 from pathvalidate import sanitize_filepath, validate_filepath, ValidationError
 from geme_miner.core.normalize import FormatTypeEnum
-from geme_miner.core.data_fetcher import StorefrontEnum
+from geme_miner.core.third_party.stores import StorefrontEnum
 from geme_miner.__version__ import __version__, __copyright__, __license__
 
 try:
@@ -24,10 +24,10 @@ def _arg_filepath_type(path: str) -> str:
         path = os.path.abspath(path)
         validate_filepath(path, platform=plat)
     except ValidationError as e:
-        raise argparse.ArgumentTypeError(e)
+        raise ArgumentTypeError(e)
 
     if os.path.isdir(path):
-        raise argparse.ArgumentTypeError(
+        raise ArgumentTypeError(
             f"{path} is an existing directory, not a file"
         )
 
@@ -49,7 +49,7 @@ def _arg_output_type(output: str) -> str:
 
 # fmt: off
 def parse(args = None):
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         description=
             f" {__copyright__}\n"
             f" {__license__}\n",
@@ -115,7 +115,7 @@ def parse(args = None):
 
     parser.add_argument(
         "--__debug",
-        help=argparse.SUPPRESS,
+        help=SUPPRESS,
         action="store_true",
     )
 

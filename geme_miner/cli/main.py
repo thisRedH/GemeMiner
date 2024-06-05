@@ -1,13 +1,16 @@
 #!/usr/bin/env python
-import sys
-from geme_miner.cli import args, config, files
-from geme_miner.core.data_fetcher import Steam, Epic  # , GoG
-from geme_miner.core.normalize import format_dict, FormatTypeEnum
+from sys import exit, stdout, stderr
+from geme_miner.cli import args, config
 
 
 def default_main():
     parg = args.parse()
     _pconf = config.parse(parg.config_path)
+
+    # Lazy import to speed up --help
+    from geme_miner.core.third_party.stores import Steam, Epic  # , GoG
+    from geme_miner.core import files
+    from geme_miner.core.normalize import format_dict, FormatTypeEnum
 
     store_flags = {
         "steam": "all" in parg.stores or "steam" in parg.stores,
@@ -34,20 +37,20 @@ def default_main():
     )
 
     if parg.output == "stdout":
-        print(formattet, file=sys.stdout)
+        print(formattet, file=stdout)
     elif parg.output == "stderr":
-        print(formattet, file=sys.stderr)
+        print(formattet, file=stderr)
     else:
         try:
             files.dump(parg.output, formattet, parg.force)
         except FileExistsError:
             print(
                 f'"{parg.output}" already exists! Use --force to overwrite it',
-                file=sys.stderr,
+                file=stderr,
             )
-            sys.exit(1)
+            exit(1)
 
-    sys.exit(0)
+    exit(0)
 
 if __name__ == "__main__":
     default_main()

@@ -1,6 +1,5 @@
-import requests
 from datetime import datetime, date
-from .base_store import StoreBase
+from .base import StoreBase
 
 _FREE_SP_URL = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=en-US&country=US&allowCountries=US"
 _STORE_BASE_URL = "https://store.epicgames.com/p/"
@@ -61,6 +60,8 @@ def _is_promo(clean_json):
 class Epic(StoreBase):
     @classmethod
     def get_free_games_store(cls) -> list[dict]:
+        import requests
+
         r = requests.get(_FREE_SP_URL)
         if not r.ok:
             return None

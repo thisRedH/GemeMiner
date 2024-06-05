@@ -7,7 +7,7 @@ from .__version__ import (
     __version__,
 )
 
-from .core.data_fetcher import (
+from .core.third_party import (
     Steam,
     Epic,
     GoG,

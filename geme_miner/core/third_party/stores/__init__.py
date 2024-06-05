@@ -1,9 +1,8 @@
 from enum import Enum
 
-from . import igdb
-from .epic_store import Epic
-from .steam_store import Steam
-from .gog_store import GoG
+from .epic import Epic
+from .steam import Steam
+from .gog import GoG
 
 
 class StorefrontEnum(Enum):
@@ -17,7 +16,6 @@ class StorefrontEnum(Enum):
 
 
 __all__ = [
-    "igdb",
     "StorefrontEnum",
     "Epic",
     "Steam",

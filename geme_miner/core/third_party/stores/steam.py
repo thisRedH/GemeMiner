@@ -1,8 +1,7 @@
-import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 import bs4.element
-from .base_store import StoreBase
+from .base import StoreBase
 
 # _FREE_SP_URL = "https://store.steampowered.com/search/results?force_infinite=1&specials=1&ignore_preferences=1" # debug data
 _FREE_SP_URL = "https://store.steampowered.com/search/results?force_infinite=1&maxprice=free&specials=1&ignore_preferences=1"
@@ -56,6 +55,8 @@ def _parse_item_reldate(item: bs4.element.Tag) -> datetime:
 class Steam(StoreBase):
     @classmethod
     def get_free_games_store(cls) -> list[dict]:
+        import requests
+
         r = requests.get(_FREE_SP_URL)
         if not r.ok:
             return None
