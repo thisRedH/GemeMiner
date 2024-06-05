@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# project
+[project]
+name = "geme_miner"
+version = "0.1.0"
+description = "Small package to get free Games from Steam, Epic, GOG, etc."
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "thisRedH", email = "redh@redh.dev"}
+]
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+keywords = [
+    "tools",
+    "lib",
+    "games",
+    "free",
+    "steam",
+    "epic",
+    "gog"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+
+    "License :: OSI Approved :: Apache Software License",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Natural Language :: English",
+    "Environment :: Console",
+
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+
+[project.scripts]
+GemeMiner = "geme_miner.cli:main"
+
+[project.optional-dependencies]
+dev = ["ruff"]
+
+# setuptools
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["geme_miner*"]
+
+# ruff
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
