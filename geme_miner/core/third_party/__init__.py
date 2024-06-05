@@ -1,4 +1,3 @@
-
 from .stores import StorefrontEnum, Epic, Steam, GoG
 from . import igdb, reddit
 

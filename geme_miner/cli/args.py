@@ -27,9 +27,7 @@ def _arg_filepath_type(path: str) -> str:
         raise ArgumentTypeError(e)
 
     if os.path.isdir(path):
-        raise ArgumentTypeError(
-            f"{path} is an existing directory, not a file"
-        )
+        raise ArgumentTypeError(f"{path} is an existing directory, not a file")
 
     return path
 

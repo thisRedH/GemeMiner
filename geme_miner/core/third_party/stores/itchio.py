@@ -5,6 +5,7 @@ from .base import StoreBase
 _SALE_PAGE_URL = "https://itch.io/games/on-sale?format=json&page={page}"
 _MAX_PAGES = 30
 
+
 def _query_pages() -> dict:
     import requests
 
@@ -24,6 +25,7 @@ def _query_pages() -> dict:
 
         content += str(json.get("content"))
     return content
+
 
 def _parse_content(content: str) -> list[dict]:
     soup = BeautifulSoup(content, "html.parser")
@@ -47,7 +49,9 @@ def _parse_content(content: str) -> list[dict]:
         if platform_wrapper is None:
             platforms = []
         else:
-            platform_tags = platform_wrapper.find_all("span", attrs={"title" : True})
+            platform_tags = platform_wrapper.find_all(
+                "span", attrs={"title": True}
+            )
             platforms = [pt.attrs["title"] for pt in platform_tags]
             platforms = [p.replace("Download for ", "") for p in platforms]
 

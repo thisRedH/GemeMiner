@@ -40,6 +40,7 @@ def format_dict(
     else:
         raise ValueError(f"Unknown format: {repr(format)}")
 
+
 def _format_json(data: dict) -> str:
     return json.dumps(data)
 
