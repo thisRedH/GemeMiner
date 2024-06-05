@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 from .base import StoreBase
 
 _FREE_SP_URL = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=en-US&country=US&allowCountries=US"
@@ -29,7 +29,6 @@ def _clean_result(json):
             "id": e["id"],
             "type": e["offerType"],
             "title": e["title"],
-            "release": date(1970, 1, 1).isoformat(), # Epic dosn't send a release date
             "page": page,
             "poster": thumbnail,
             "promo": e["promotions"],

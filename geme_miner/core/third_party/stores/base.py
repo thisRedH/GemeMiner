@@ -1,4 +1,3 @@
-from datetime import datetime
 from .. import igdb
 
 
@@ -8,7 +7,6 @@ GameFinished = dict
 EMPTY_GAME_DATA = {
     "id": "",
     "title": "",
-    "release": datetime(1970, 1, 1).isoformat(),
     "page": "",
     "poster": "",
 }  # fmt: skip
@@ -20,13 +18,6 @@ def _game_cleanup(game_data: GameRaw) -> GameRaw:
         clean[k] = game_data.get(k, EMPTY_GAME_DATA[k])
     return clean
 
-
-def _fill_missing_fields(game_raw: GameRaw, igdb_data: dict) -> GameRaw:
-    data = game_raw
-    # TODO: implement
-    return data
-
-
 class StoreBase:
     #! Don't Overwrite in child classes
     @classmethod
@@ -34,12 +25,11 @@ class StoreBase:
         games_store = cls.get_free_games_store()
         games_store = [_game_cleanup(g) for g in games_store]
         igdb_data = [
-            igdb.get_game(g["title"], g["release"]) for g in games_store
+            igdb.get_game(g["title"]) for g in games_store
         ]
 
         data = []
         for i, game in enumerate(games_store):
-            game = _fill_missing_fields(game, igdb_data[i])
             data.append({
                 "store": game,
                 "igdb": igdb_data[i],

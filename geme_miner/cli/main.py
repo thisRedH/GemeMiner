@@ -8,7 +8,7 @@ def default_main():
     _pconf = config.parse(parg.config_path)
 
     # Lazy import to speed up --help
-    from geme_miner.core.third_party.stores import Steam, Epic  # , GoG
+    from geme_miner.core.third_party.stores import Steam, Epic, ItchIO  # , GoG
     from geme_miner.core import files
     from geme_miner.core.normalize import format_dict, FormatTypeEnum
 
@@ -16,12 +16,14 @@ def default_main():
         "steam": "all" in parg.stores or "steam" in parg.stores,
         "epic": "all" in parg.stores or "epic_games" in parg.stores,
         "gog": "all" in parg.stores or "gog" in parg.stores,
+        "itchio": "all" in parg.stores or "itchio" in parg.stores,
     }
 
     store_classes = {
         "steam": Steam,
         "epic": Epic,
         # "gog": GoG,
+        "itchio": ItchIO,
     }
 
     data = {}
