@@ -39,9 +39,9 @@ def default_main():
     )
 
     if parg.output == "stdout":
-        print(formattet, file=stdout)
+        print(formattet.encode("utf-8").decode("unicode_escape"), file=stdout)
     elif parg.output == "stderr":
-        print(formattet, file=stderr)
+        print(formattet.encode("utf-8").decode("unicode_escape"), file=stderr)
     else:
         try:
             files.dump(parg.output, formattet, parg.force)
@@ -53,6 +53,7 @@ def default_main():
             exit(1)
 
     exit(0)
+
 
 if __name__ == "__main__":
     default_main()
