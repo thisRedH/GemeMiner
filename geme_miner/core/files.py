@@ -18,8 +18,8 @@ def dump(p: str, s: str, force: bool = False) -> None:
     if not force and os.path.exists(p):
         raise FileExistsError(f"File {p} already exists and force=False")
 
-    mode = "r+" if force else "f"
-    with open(p, mode) as f:
+    mode = "w+" if force else "x"
+    with open(p, mode, encoding="utf-8") as f:
         f.seek(0)
-        f.write(s)
+        f.write(str(s))
         f.truncate()
