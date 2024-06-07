@@ -51,58 +51,26 @@ class Subreddit:
         self.api = api
 
     def get_newest(self) -> list[dict] | int:
-        """
-        Retrieves the newest posts from a specified subreddit.
-
-        Args:
-            sub (str): The name of the subreddit.
-
-        Returns:
-            list[dict]: A list of serialized posts.
-            int: If it couldn't retrieve the posts.
-                Error codes: 0 data is none, else http status code
-        """
-
+        """wrapper for `Subreddit.get_page`"""
         return self.get_page(1, 0)
 
     def get_page(self, page: int, sleep_time: float = 1.0) -> list[dict]:
         """
-        Retrieves a page of posts from a specified subreddit.
+        Retrieves a page of posts.
 
         Args:
-            page (int): The page number to retrieve.
+            page (int): The page number to retrieve. Starting from 0.
             sleep_time (int): The time in seconds to sleep between requests.
 
         Returns:
             list[dict]: A list of serialized posts.
-            None: If error.
-
-        Raises:
-            ValueError: If the page is less than 1.
-            ValueError: If the page is greater than 10.
-
-        Note:
-            The function will retrieve all pages until it reaches the your page.
-            So if you want to get page 5, it needs to retrieve data from reddit 5 times.
+            int: If error.
         """
+        if page < 0:
+            raise ValueError("page must be greater than or equal to 0")
 
-        if page > 10:
-            raise ValueError(
-                "page must be less than or equal to 10. "
-                "Use _subreddit_get_page() if you really want more than 10 pages"
-            )
-
-        return self._get_page(page, sleep_time)
-
-    def _get_page(
-        self,
-        page: int,
-        sleep_time: float,
-    ) -> list[dict]:
         after = ""
-
-        if page < 1:
-            raise ValueError("page must be greater than or equal to 1")
+        page += 1
 
         try:
             while page > 0:
@@ -115,7 +83,7 @@ class Subreddit:
                 if page > 0:
                     sleep(sleep_time)
         except (IndexError, TypeError):
-            return None
+            return 0
 
         posts = [post for post in posts if post is not None]
         posts = [self._serialize_post(post) for post in posts]
