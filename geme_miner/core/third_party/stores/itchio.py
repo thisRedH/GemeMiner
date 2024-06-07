@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from .base import StoreBase
 
 
@@ -28,6 +27,8 @@ def _query_pages() -> dict:
 
 
 def _parse_content(content: str) -> list[dict]:
+    from bs4 import BeautifulSoup
+
     soup = BeautifulSoup(content, "html.parser")
     items = soup.find_all("div", recursive=False)
 

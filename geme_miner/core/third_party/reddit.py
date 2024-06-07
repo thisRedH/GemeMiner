@@ -1,6 +1,4 @@
 import math
-import requests
-from markdown import markdown
 from time import sleep
 
 
@@ -10,6 +8,8 @@ SUBREDDIT_JSON_URL = "https://www.reddit.com/r/{sub}/new.json?sort=new&limit={li
 def subreddit_get_raw_posts(
     sub: str, limit: int = 25, after: str = ""
 ) -> list[dict]:
+    import requests
+
     r = requests.get(
         SUBREDDIT_JSON_URL.format(sub=sub, limit=limit, after=after)
     )
@@ -31,6 +31,8 @@ def calc_downvotes(upvotes: int, upvote_ratio: float) -> int:
 
 
 def subreddit_serialize_post(post: dict) -> dict:
+    from markdown import markdown
+
     data = post.get("data")
     if data is None:
         return None
