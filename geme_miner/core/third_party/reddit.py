@@ -1,26 +1,6 @@
 import math
+from enum import Enum
 from time import sleep
-
-
-SUBREDDIT_JSON_URL = "https://www.reddit.com/r/{sub}/new.json?sort=new&limit={limit}&sort=new&after={after}"
-
-
-def subreddit_get_raw_posts(
-    sub: str, limit: int = 25, after: str = ""
-) -> list[dict]:
-    import requests
-
-    r = requests.get(
-        SUBREDDIT_JSON_URL.format(sub=sub, limit=limit, after=after)
-    )
-    if not r.ok:
-        return None
-
-    data = r.json().get("data")
-    if data is None:
-        return None
-
-    return data.get("children")
 
 
 def calc_downvotes(upvotes: int, upvote_ratio: float) -> int:
@@ -30,113 +10,164 @@ def calc_downvotes(upvotes: int, upvote_ratio: float) -> int:
     return int(math.floor((int(upvotes) / float(upvote_ratio)) - upvotes))
 
 
-def subreddit_serialize_post(post: dict) -> dict:
-    from markdown import markdown
+class SubredditApiUrl(Enum):
+    REDDIT = "https://www.reddit.com/r/{sub}/new.json?sort=new&limit={limit}&sort=new&after={after}"
+    PULLPUSH = "https://api.pullpush.io/reddit/search/submission?subreddit={sub}&size={limit}&after={after}"
 
-    data = post.get("data")
-    if data is None:
-        return None
+    def raw_to_raw_posts(self, raw_data: dict) -> list[dict]:
+        if self == self.REDDIT:
+            data = raw_data.get("data")
+            return data.get("children")
+        elif self == self.PULLPUSH:
+            return raw_data.get("data")
+        else:
+            raise ValueError(f"Unknown api: {repr(self)}")
 
-    return {
-        "id":                   data.get("id"),
-        "name":                 data.get("name"),
-        "title":                data.get("title"),
-        "permalink":            data.get("permalink"),
-        "link_flair_text":      data.get("link_flair_text"),
-        "created_utc":          data.get("created_utc"),
-        "author_name":          data.get("author_fullname"),
-        "author_display_name":  data.get("author"),
-        "votes": {
-            "ratio":            data.get("upvote_ratio"),
-            "up":               data.get("ups"),
-            "down":
-                calc_downvotes(data.get("ups"), data.get("upvote_ratio")),
-        },
-        "data": {
-            "url":              data.get("url"),
-            "selftext_md":      data.get("selftext"),
-            "selftext_html":    markdown(data.get("selftext"), output_format="html"),
-        }
-    }  # fmt: skip
+    def data_from_post(self, post: dict) -> list[dict]:
+        if self == self.REDDIT:
+            return post.get("data")
+        elif self == self.PULLPUSH:
+            return post
+        else:
+            raise ValueError(f"Unknown api: {repr(self)}")
 
 
-def subreddit_get_newest(sub: str, count: int = 25) -> list[dict]:
-    """
-    Retrieves the newest posts from a specified subreddit.
+class Subreddit:
+    def __init__(
+        self,
+        sub: str,
+        post_per_req: int = 25,
+        api: SubredditApiUrl = SubredditApiUrl.REDDIT,
+    ):
+        if sub is None or sub.strip() == "":
+            raise ValueError(f"sub cannot be {repr(sub)}.")
+        if not 5 <= post_per_req <= 100:
+            raise ValueError(
+                f"post_per_req must be between 5 and 100, inclusive, not {repr(post_per_req)}."
+            )
 
-    Args:
-        sub (str): The name of the subreddit.
-        count (int): The number of posts to retrieve. Defaults to 25. Max 100.
+        self.sub = sub
+        self.count = post_per_req
+        self.api = api
 
-    Returns:
-        list[dict]: A list of serialized posts.
-    """
+    def get_newest(self) -> list[dict] | int:
+        """
+        Retrieves the newest posts from a specified subreddit.
 
-    posts = subreddit_get_raw_posts(sub, count)
-    posts = [subreddit_serialize_post(post) for post in posts]
+        Args:
+            sub (str): The name of the subreddit.
 
-    return posts
+        Returns:
+            list[dict]: A list of serialized posts.
+            int: If it couldn't retrieve the posts.
+                Error codes: 0 data is none, else http status code
+        """
 
+        return self.get_page(1, 0)
 
-def subreddit_get_page(
-    sub: str, page: int, count: int = 25, sleep_time: float = 1.0
-) -> list[dict]:
-    """
-    Retrieves a page of posts from a specified subreddit.
+    def get_page(self, page: int, sleep_time: float = 1.0) -> list[dict]:
+        """
+        Retrieves a page of posts from a specified subreddit.
 
-    Args:
-        sub (str): The name of the subreddit.
-        page (int): The page number to retrieve.
-        count (int): The number of posts to retrieve per page.
-        sleep_time (int): The time in seconds to sleep between requests.
+        Args:
+            page (int): The page number to retrieve.
+            sleep_time (int): The time in seconds to sleep between requests.
 
-    Returns:
-        list[dict]: A list of serialized posts.
-        None: If error.
+        Returns:
+            list[dict]: A list of serialized posts.
+            None: If error.
 
-    Raises:
-        ValueError: If the count is less than 3.
-        ValueError: If the page is less than 1.
-        ValueError: If the count is greater than 100.
-        ValueError: If the page is greater than 10.
+        Raises:
+            ValueError: If the page is less than 1.
+            ValueError: If the page is greater than 10.
 
-    Note:
-        The function will retrieve all pages until it reaches the your page.
-        So if you want to get page 5, it needs to retrieve data from reddit 5 times.
-    """
+        Note:
+            The function will retrieve all pages until it reaches the your page.
+            So if you want to get page 5, it needs to retrieve data from reddit 5 times.
+        """
 
-    if page > 10:
-        raise ValueError(
-            "page must be less than or equal to 10. "
-            "Use _subreddit_get_page() if you really want more than 10 pages"
+        if page > 10:
+            raise ValueError(
+                "page must be less than or equal to 10. "
+                "Use _subreddit_get_page() if you really want more than 10 pages"
+            )
+
+        return self._get_page(page, sleep_time)
+
+    def _get_page(
+        self,
+        page: int,
+        sleep_time: float,
+    ) -> list[dict]:
+        after = ""
+
+        if page < 1:
+            raise ValueError("page must be greater than or equal to 1")
+
+        try:
+            while page > 0:
+                posts = self._request_raw_posts(after)
+                if isinstance(posts, int):
+                    return posts
+
+                after = self.api.data_from_post(posts[-1]).get("name")
+                page -= 1
+                if page > 0:
+                    sleep(sleep_time)
+        except (IndexError, TypeError):
+            return None
+
+        posts = [post for post in posts if post is not None]
+        posts = [self._serialize_post(post) for post in posts]
+        return posts
+
+    def _request_raw_posts(
+        self,
+        after: str = "",
+    ) -> list[dict] | int:
+        import requests
+
+        # fake curl to get less "429 Too Many Requests"
+        r = requests.get(
+            self.api.value.format(
+                sub=self.sub,
+                limit=self.count,
+                after=after,
+                headers={"User-Agent": "curl/8.4.0", "Accept": "*/*"},
+            )
         )
+        if not r.ok:
+            return r.status_code
 
-    return _subreddit_get_page(sub, page, count, sleep_time)
+        return self.api.raw_to_raw_posts(r.json())
 
+    def _serialize_post(self, post: dict) -> dict:
+        from markdown import markdown
 
-def _subreddit_get_page(
-    sub: str, page: int, count: int, sleep_time: float
-) -> list[dict]:
-    after = ""
+        post = self.api.data_from_post(post)
+        if post is None:
+            return None
 
-    if page < 1:
-        raise ValueError("page must be greater than or equal to 1")
-    if count <= 2:
-        raise ValueError("count must be greater than 2")
-    if count > 100:
-        raise ValueError("count must be less than or equal to 100")
-
-    try:
-        while page > 0:
-            posts = subreddit_get_raw_posts(sub, count, after)
-            after = posts[-1].get("data").get("name")
-            page -= 1
-            if page > 0:
-                sleep(sleep_time)
-    except (IndexError, TypeError):
-        return None
-
-    posts = [post for post in posts if post is not None]
-
-    posts = [subreddit_serialize_post(post) for post in posts]
-    return posts
+        return {
+            "id":                   post.get("id"),
+            "name":                 post.get("name"),
+            "title":                post.get("title"),
+            "permalink":            post.get("permalink"),
+            "link_flair_text":      post.get("link_flair_text"),
+            "created_utc":          int(post.get("created_utc")),
+            "author_name":          post.get("author_fullname"),
+            "author_display_name":  post.get("author"),
+            "votes": {
+                "ratio":            float(post.get("upvote_ratio")),
+                "up":               int(post.get("ups")),
+                "down":
+                    int(calc_downvotes(post.get("ups"), post.get("upvote_ratio"))),
+            },
+            "data": {
+                "url":              post.get("url"),
+                "selftext_md":      post.get("selftext"),
+                # its better then selftext_html from reddit
+                "selftext_html":    markdown(post.get("selftext"), output_format="html"),
+            },
+            "api": self.api.name,
+        }  # fmt: skip
