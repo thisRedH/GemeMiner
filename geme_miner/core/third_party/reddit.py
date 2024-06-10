@@ -7,7 +7,11 @@ def calc_downvotes(upvotes: int, upvote_ratio: float) -> int:
     if upvotes is None or upvote_ratio is None:
         return None
 
-    return int(math.ceil((int(upvotes) / float(upvote_ratio)) - upvotes))
+    upvotes = int(upvotes)
+    upvote_ratio = float(upvote_ratio)
+    result = (upvotes / upvote_ratio) - upvotes
+
+    return int(math.ceil(result))
 
 
 class SubredditApiUrl(Enum):
