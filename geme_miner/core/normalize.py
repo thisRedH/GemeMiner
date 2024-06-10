@@ -26,48 +26,42 @@ def format_dict(
     if format == FormatTypeEnum.JSON:
         return _format_json(data)
     elif format == FormatTypeEnum.JSON_PRETTY:
-        return _format_json_pretty(data)
+        return _format_json(data, indent=pretty_indent)
     elif format == FormatTypeEnum.XML:
         return _format_xml(data, cdata=False)
     elif format == FormatTypeEnum.XML_CDATA:
         return _format_xml(data, cdata=True)
     elif format == FormatTypeEnum.XML_PRETTY:
-        return _format_xml_pretty(data, cdata=False, indent=pretty_indent)
+        return _format_xml(data, cdata=False, indent=pretty_indent)
     elif format == FormatTypeEnum.XML_PRETTY_CDATA:
-        return _format_xml_pretty(data, cdata=True, indent=pretty_indent)
+        return _format_xml(data, cdata=True, indent=pretty_indent)
     elif format == FormatTypeEnum.CONSOLE:
         return _format_console(data, consoleFormatFn)
     else:
         raise ValueError(f"Unknown format: {repr(format)}")
 
 
-def _format_json(data: dict) -> str:
-    return json.dumps(data)
+def _format_json(data: dict, indent: str = None) -> str:
+    return json.dumps(data, indent=indent)
 
 
-def _format_json_pretty(data: dict) -> str:
-    return json.dumps(data, indent=4)
-
-
-def _format_xml(data: dict, cdata: bool = False) -> str:
-    return dicttoxml(
-        data,
-        custom_root="data",
-        cdata=cdata,
-    ).decode("utf-8")
-
-
-def _format_xml_pretty(
-    data: dict, cdata: bool = False, indent: str = " " * 2
-) -> str:
+def _format_xml(data: dict, cdata: bool = False, indent: str = None) -> str:
     dom = xml.dom.minidom.parseString(
         dicttoxml(
             data,
             custom_root="data",
             cdata=cdata,
-        ).decode("utf-8")
+            return_bytes=False,
+        )
     )
-    return dom.toprettyxml(indent=indent)
+
+    if indent is None:
+        indent = ""
+        newl = ""
+    else:
+        newl = "\n"
+
+    return dom.toprettyxml(indent=indent, newl=newl)
 
 
 def _format_console(data: dict, console_format_fn: callable = None) -> str:
