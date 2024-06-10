@@ -1,6 +1,7 @@
 from datetime import datetime
 from .base import StoreBase
 from typing import Any, TYPE_CHECKING
+
 if TYPE_CHECKING:
     from bs4.element import Tag
 else:
