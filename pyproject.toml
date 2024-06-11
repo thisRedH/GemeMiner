@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 # project
 [project]
 name = "geme_miner"
-version = "0.5.0"
+version = "0.5.2"
 description = "Small package to get free Games from Steam, Epic, GOG, etc."
 readme = "README.md"
 license = {file = "LICENSE"}

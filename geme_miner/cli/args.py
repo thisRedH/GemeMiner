@@ -1,3 +1,4 @@
+import sys
 import os.path
 import platform
 from argparse import ArgumentParser, ArgumentTypeError, SUPPRESS
@@ -47,7 +48,13 @@ def _arg_output_type(output: str) -> str:
 
 # fmt: off
 def parse(args = None):
+    prog = os.path.basename(sys.argv[0])
+    # check if prog contains any of these words
+    if not any(t in prog.lower() for t in ["geme_miner", "gememiner", "gm"]):
+        prog = "GemeMiner"
+    
     parser = ArgumentParser(
+        prog=prog,
         description=
             f" {__copyright__}\n"
             f" {__license__}\n",
