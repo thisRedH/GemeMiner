@@ -7,11 +7,12 @@ from .itchio import ItchIO
 
 
 class StorefrontEnum(Enum):
-    ALL = 0
-    STEAM = 1
-    EPIC_GAMES = 2
-    GOG = 3
-    ITCHIO = 4
+    ALL = [Epic, Steam, ItchIO]
+    RECOMMENDED = [Steam, Epic] # TODO: Remove
+    STEAM = Steam
+    EPIC = Epic
+    #GOG = GoG
+    ITCHIO = ItchIO
 
     def __str__(self):
         return self.name

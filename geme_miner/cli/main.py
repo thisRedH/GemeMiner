@@ -3,35 +3,29 @@ from sys import exit, stdout, stderr
 from geme_miner.cli import args, config
 
 
+def _stores(arg_stores):
+    from geme_miner.core.third_party.stores import StorefrontEnum
+
+    data = {}
+    stores = [StorefrontEnum[str.upper(x)] for x in arg_stores]
+    for s in stores:
+        if isinstance(s.value, list):
+            for store in s.value:
+                data[store.__name__.lower()] = store.get_free_games()
+        else:
+            data[s.value.__name__.lower()] = s.value.get_free_games()
+    return data
+
+
 def default_main():
     parg = args.parse()
     _pconf = config.parse(parg.config_path)
 
     # Lazy import to speed up --help
-    from geme_miner.core.third_party.stores import Steam, Epic, ItchIO  # , GoG
     from geme_miner.core import files
     from geme_miner.core.normalize import format_dict, FormatTypeEnum
 
-    store_flags = {
-        "steam": "all" in parg.stores or "steam" in parg.stores,
-        "epic": "all" in parg.stores or "epic_games" in parg.stores,
-        "gog": "all" in parg.stores or "gog" in parg.stores,
-        "itchio": "all" in parg.stores or "itchio" in parg.stores,
-    }
-
-    store_classes = {
-        "steam": Steam,
-        "epic": Epic,
-        # "gog": GoG,
-        "itchio": ItchIO,
-    }
-
-    data = {}
-    for k, v in store_flags.items():
-        if v and store_classes.get(k) is not None:
-            r = store_classes[k].get_free_games()
-            r = store_classes[k].validate_urls(r)
-            data[k] = r
+    data = _stores(parg.stores)
 
     formattet = format_dict(
         data,

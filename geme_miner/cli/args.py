@@ -69,7 +69,7 @@ def parse(args = None):
     parser.add_argument(
         "-s", "--stores",
         help="Stores to get data from (default: %(default)s)",
-        default=[StorefrontEnum.ALL.name.lower()],
+        default=[StorefrontEnum.RECOMMENDED.name.lower()],
         choices=[t.name.lower() for t in StorefrontEnum],
         type=str.lower,
         nargs="+",
