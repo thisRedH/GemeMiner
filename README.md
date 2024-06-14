@@ -23,3 +23,5 @@ This software is licensed under the [Apache-2.0](LICENSE) License.
 [Epic Games]: https://store.epicgames.com/
 [GoG]: https://www.gog.com/
 [Itch.io]: https://itch.io/
+
+[IGDB]: https://www.igdb.com/
