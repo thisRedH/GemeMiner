@@ -60,12 +60,19 @@ def parse(args = None):
             f" {__license__}\n",
         formatter_class=FormatterClass
     )
-
     parser.add_argument(
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
     )
+
+    parser.add_argument(
+        "-c", "--config_path",
+        help="TODO: The path to the config file (default: %(default)s)",
+        default="./config.jsonc",
+        type=_arg_filepath_type,
+    )
+
     parser.add_argument(
         "-s", "--stores",
         help="Stores to get data from (default: %(default)s)",
@@ -75,17 +82,22 @@ def parse(args = None):
         nargs="+",
     )
     parser.add_argument(
+        "--no_stores",
+        help="Don't get data from Stores",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no_reddit",
+        help="Don't get data from some Subreddits",
+        action="store_true",
+    )
+
+    parser.add_argument(
         "-f", "--format",
         help="Output format (default: %(default)s)",
         default=FormatTypeEnum.JSON_PRETTY.name.lower(),
         choices=[t.name.lower() for t in FormatTypeEnum],
         type=str.lower,
-    )
-    parser.add_argument(
-        "-c", "--config_path",
-        help="TODO: The path to the config file (default: %(default)s)",
-        default="./config.jsonc",
-        type=_arg_filepath_type,
     )
     parser.add_argument(
         "-o", "--output",
@@ -94,6 +106,12 @@ def parse(args = None):
         metavar="{stdout,stderr,{FILE_PATH}}",
         type=_arg_output_type,
     )
+    parser.add_argument(
+        "--force",
+        help="Force overwriting an existing file. Will be applied to --output",
+        action="store_true",
+    )
+
     parser.add_argument(
         "-l", "--log_output",
         help="TODO: Where to output the data (default: %(default)s)",
@@ -107,14 +125,10 @@ def parse(args = None):
         default=0,
         action="count",
     )
+
     parser.add_argument(
         "--test_links",
         help="TODO: Test links by requesting thier Headers",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--force",
-        help="Force overwriting an existing file. Will be applied to --output",
         action="store_true",
     )
 

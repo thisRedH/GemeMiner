@@ -16,6 +16,17 @@ def _stores(arg_stores):
             data[s.value.__name__.lower()] = s.value.get_free_games()
     return data
 
+def _reddit(subs: list[str], count: int):
+    from geme_miner.core.third_party.reddit import Subreddit
+    from time import sleep
+
+    data = {}
+    for sub in subs:
+        p = Subreddit(sub, count).get_newest()
+        data[sub] = p
+        sleep(1.2)
+
+    return data
 
 def default_main():
     parg = args.parse()
@@ -25,7 +36,11 @@ def default_main():
     from geme_miner.core import files
     from geme_miner.core.normalize import format_dict, FormatTypeEnum
 
-    data = _stores(parg.stores)
+    data = {}
+    if not parg.no_stores:
+        data = _stores(parg.stores)
+    if not parg.no_reddit:
+        data["reddit"] = _reddit(["FreeGameFindings", "Freegamestuff", "FreeGamesOnSteam"], 15)
 
     formattet = format_dict(
         data,
